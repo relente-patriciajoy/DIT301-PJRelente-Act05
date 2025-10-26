@@ -29,20 +29,20 @@
 //     );
 //   }
 
-//   // ✅ INSERT note
+//   // INSERT note
 //   Future<int> insert(Note note) async {
 //     final dbClient = await db;
 //     return await dbClient.insert('notes', note.toMap());
 //   }
 
-//   // ✅ GET all notes
+//   // GET all notes
 //   Future<List<Note>> getNotes() async {
 //     final dbClient = await db;
 //     final List<Map<String, dynamic>> maps = await dbClient.query('notes');
 //     return List.generate(maps.length, (i) => Note.fromMap(maps[i]));
 //   }
 
-//   // ✅ UPDATE note
+//   // UPDATE note
 //   Future<int> update(Note note) async {
 //     final dbClient = await db;
 //     return await dbClient.update(
@@ -53,7 +53,7 @@
 //     );
 //   }
 
-//   // ✅ DELETE note
+//   // DELETE note
 //   Future<int> delete(int id) async {
 //     final dbClient = await db;
 //     return await dbClient.delete('notes', where: 'id = ?', whereArgs: [id]);
