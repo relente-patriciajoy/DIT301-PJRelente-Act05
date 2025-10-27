@@ -1,21 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+import '../db/db_helper.dart';
 import '../models/note.dart';
 
 class NoteEditScreen extends StatefulWidget {
   final Note? note;
-  final int? index;
 
-  const NoteEditScreen({super.key, this.note, this.index});
+  const NoteEditScreen({super.key, this.note});
 
   @override
   State<NoteEditScreen> createState() => _NoteEditScreenState();
 }
 
 class _NoteEditScreenState extends State<NoteEditScreen> {
+  final _dbHelper = DBHelper();
   final TextEditingController titleController = TextEditingController();
   final TextEditingController contentController = TextEditingController();
-  final Box<Note> notesBox = Hive.box<Note>('notesBox');
 
   @override
   void initState() {
@@ -26,7 +25,7 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
     }
   }
 
-  void saveNote() {
+  void saveNote() async {
     String title = titleController.text.trim();
     String content = contentController.text.trim();
 
@@ -41,18 +40,19 @@ class _NoteEditScreenState extends State<NoteEditScreen> {
 
     if (widget.note == null) {
       // Add new note
-      notesBox.add(Note(
+      await _dbHelper.insert(Note(
         title: title,
         content: content,
         timestamp: timestamp,
       ));
     } else {
       // Update existing note
-      widget.note!
-        ..title = title
-        ..content = content
-        ..timestamp = timestamp
-        ..save();
+      await _dbHelper.update(Note(
+        id: widget.note!.id,
+        title: title,
+        content: content,
+        timestamp: timestamp,
+      ));
     }
 
     Navigator.pop(context);

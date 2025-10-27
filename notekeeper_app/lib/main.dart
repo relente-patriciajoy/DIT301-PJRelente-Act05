@@ -1,25 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'models/note.dart';
 import 'screens/note_list_screen.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Hive.initFlutter();
-  Hive.registerAdapter(NoteAdapter());
-  await Hive.openBox<Note>('notesBox');
-
-  runApp(const MyApp());
+void main() {
+  runApp(const NoteKeeperApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class NoteKeeperApp extends StatelessWidget {
+  const NoteKeeperApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'NoteKeeperApp',
-      theme: ThemeData(primarySwatch: Colors.blue),
+      title: 'NoteKeeper SQLite',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
+      ),
+      debugShowCheckedModeBanner: false,
       home: const NoteListScreen(),
     );
   }

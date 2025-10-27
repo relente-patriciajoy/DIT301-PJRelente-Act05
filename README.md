@@ -2,11 +2,11 @@
 
 1. How did you implement CRUD using SQLite?
 
- At first, I implemented CRUD operations using SQLite through a DBHelper class that handled inserting, retrieving, updating, and deleting notes from a local database. Each note was stored as a record in a notes table with fields for the title, content, and timestamp. However, as the activity progressed, I shifted to using the Hive package, a lightweight NoSQL database, which simplified data handling by storing note objects directly in Hive boxes instead of writing raw SQL queries.
+ I implemented CRUD operations by integrating SQLite into my Flutter app using the sqflite and path packages. I created a DBHelper class that handles all database operations, including creating the notes table and defining methods for inserting, reading, updating, and deleting records. The Note model class contains toMap() and fromMap() methods to convert data between Dart objects and database records. The NoteListScreen displays all the saved notes, while the NoteEditScreen allows users to add or edit note entries, which are then saved directly into the SQLite database.
 
 2. What challenges did you face in maintaining data persistence?
 
-One of the main challenges I faced was dealing with data model mismatches and adapter errors when switching from SQLite to Hive. I also encountered issues with methods like .save() not being recognized and had to regenerate Hive adapter files using build_runner. Ensuring that the data remained persistent after app restarts required understanding how Hive boxes work and where data is stored locally on the device. These challenges helped me better understand Flutter’s local storage system and how data persistence differs between SQLite and Hive.
+One of the main challenges I faced was ensuring that the data persisted correctly across app restarts and updates. At first, there were issues with mapping data to and from the database and refreshing the UI after CRUD operations. I also encountered permission-related errors while building and running the app, as well as difficulties connecting the UI to the database correctly. Debugging these helped me understand how asynchronous database operations work in Flutter and how to properly reload data after every change.
 
 3. How could you improve performance or UI design in future versions?
 

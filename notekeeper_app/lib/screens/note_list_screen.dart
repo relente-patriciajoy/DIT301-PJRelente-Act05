@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+import '../db/db_helper.dart';
 import '../models/note.dart';
 import 'note_edit_screen.dart';
 
@@ -11,57 +11,80 @@ class NoteListScreen extends StatefulWidget {
 }
 
 class _NoteListScreenState extends State<NoteListScreen> {
-  final Box<Note> notesBox = Hive.box<Note>('notesBox');
+  final DBHelper _dbHelper = DBHelper();
+  List<Note> notes = [];
 
-  void deleteNote(int index) {
-    notesBox.deleteAt(index);
-    setState(() {});
+  @override
+  void initState() {
+    super.initState();
+    loadNotes();
+  }
+
+  // Load notes from database
+  Future<void> loadNotes() async {
+    final data = await _dbHelper.getNotes();
+    setState(() {
+      notes = data;
+    });
+  }
+
+  // Delete note
+  void deleteNote(int id) async {
+    await _dbHelper.delete(id);
+    loadNotes();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Note deleted successfully')),
+    );
+  }
+
+  // Navigate to edit or add note screen
+  void openNoteEditor({Note? note}) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => NoteEditScreen(note: note)),
+    );
+    loadNotes();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('NoteKeeperApp')),
-      body: ValueListenableBuilder(
-        valueListenable: notesBox.listenable(),
-        builder: (context, Box<Note> box, _) {
-          if (box.values.isEmpty) {
-            return const Center(child: Text('No notes yet.'));
-          }
-
-          return ListView.builder(
-            itemCount: box.length,
-            itemBuilder: (context, index) {
-              final note = box.getAt(index)!;
-              return ListTile(
-                title: Text(note.title),
-                subtitle: Text(note.content),
-                trailing: IconButton(
-                  icon: const Icon(Icons.delete, color: Colors.red),
-                  onPressed: () => deleteNote(index),
-                ),
-                onTap: () async {
-                  await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => NoteEditScreen(note: note, index: index),
-                    ),
-                  );
-                  setState(() {});
-                },
-              );
-            },
-          );
-        },
+      appBar: AppBar(
+        title: const Text('My Notes'),
       ),
+      body: notes.isEmpty
+          ? const Center(
+              child: Text(
+                'No notes yet. Tap + to add one!',
+                style: TextStyle(fontSize: 16),
+              ),
+            )
+          : ListView.builder(
+              itemCount: notes.length,
+              itemBuilder: (context, index) {
+                final note = notes[index];
+                return Card(
+                  margin:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  child: ListTile(
+                    title: Text(note.title,
+                        style: const TextStyle(fontWeight: FontWeight.bold)),
+                    subtitle: Text(
+                      note.content,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                      onPressed: () => deleteNote(note.id!),
+                    ),
+                    onTap: () => openNoteEditor(note: note),
+                  ),
+                );
+              },
+            ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          await Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const NoteEditScreen()),
-          );
-          setState(() {});
-        },
+        onPressed: () => openNoteEditor(),
         child: const Icon(Icons.add),
       ),
     );
